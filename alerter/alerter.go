@@ -1,0 +1,4 @@
+
+
+type Alerter interface {
+}
