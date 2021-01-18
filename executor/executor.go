@@ -8,17 +8,26 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type Executor struct {
-	reporter reporter.Reporter
-	logger   *logrus.Entry
+type ExecutorService struct {
+	reporter        reporter.Reporter
+	logger          *logrus.Entry
+	transactionFunc collector.Transaction
 }
 
-func (e *Executor) execute(t collector.Transaction) {
-	startTime := time.Now()
-	res, err := t("c")
+func New(report reporter.Reporter, logger *logrus.Entry, transactionFunc collector.Transaction) *ExecutorService {
+	return &ExecutorService{
+		reporter:        report,
+		logger:          logger,
+		transactionFunc: transactionFunc,
+	}
+}
+
+func (e *ExecutorService) Execute(input interface{}) {
 	e.logger.
-		WithField("result", res).
-		Info("Transaction Completed")
+		WithField("Status", collector.Initializing).
+		Debug("Starting transaction")
+	startTime := time.Now()
+	err := e.transactionFunc(input)
 	endTime := time.Now()
 	var status collector.TransactionStatus
 	var message string
@@ -27,14 +36,21 @@ func (e *Executor) execute(t collector.Transaction) {
 		message = err.Error()
 	} else {
 		status = collector.Success
+		message = "Completed Successfully"
 	}
 	report := &reporter.Report{
-		startTime: startTime,
-		endTime:   endTime,
-		status:    status,
-		message:   message,
+		StartTime: startTime,
+		EndTime:   endTime,
+		Status:    status,
+		Message:   message,
 	}
-	if err != nil {
-		e.reporter.Report(report)
-	}
+	e.logger.
+		WithField("StartTime", startTime).
+		WithField("EndTime", endTime).
+		WithField("Status", status).
+		WithField("Message", message).
+		Debug("Sending report")
+
+	e.reporter.Report(report)
+	return
 }

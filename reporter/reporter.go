@@ -11,8 +11,8 @@ type Reporter interface {
 }
 
 type Report struct {
-	status    collector.TransactionStatus
-	startTime time.Time
-	endTime   time.Time
-	message   string
+	Status    collector.TransactionStatus
+	StartTime time.Time
+	EndTime   time.Time
+	Message   string
 }

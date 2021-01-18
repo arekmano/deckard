@@ -1,14 +1,14 @@
 package collector
 
 const (
-	Fail    TransactionStatus = "Fail"
-	Success TransactionStatus = "Success"
-	Timeout TransactionStatus = "Timeout"
+	Fail         TransactionStatus = "Fail"
+	Success      TransactionStatus = "Success"
+	Initializing TransactionStatus = "Initializing"
+	Timeout      TransactionStatus = "Timeout"
 )
 
-type TransactionContext string
 type TransactionStatus string
-type Transaction = func(context TransactionContext) (interface{}, error)
+type Transaction = func(context interface{}) error
 
 type TransactionConfig struct {
 }

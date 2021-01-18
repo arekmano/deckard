@@ -20,11 +20,11 @@ func (c *CloudwatchReporter) Report(r *Report) error {
 				Dimensions: []*cloudwatch.Dimension{
 					{
 						Name:  aws.String("Status"),
-						Value: aws.String(string(r.status)),
+						Value: aws.String(string(r.Status)),
 					},
 				},
 				MetricName: aws.String("TransactionStarted"),
-				Timestamp:  &r.startTime,
+				Timestamp:  &r.StartTime,
 				Unit:       aws.String("Count"),
 				Value:      aws.Float64(1),
 			},
@@ -32,11 +32,11 @@ func (c *CloudwatchReporter) Report(r *Report) error {
 				Dimensions: []*cloudwatch.Dimension{
 					{
 						Name:  aws.String("Status"),
-						Value: aws.String(string(r.status)),
+						Value: aws.String(string(r.Status)),
 					},
 				},
 				MetricName: aws.String("TransactionEnded"),
-				Timestamp:  &r.endTime,
+				Timestamp:  &r.EndTime,
 				Unit:       aws.String("Count"),
 				Value:      aws.Float64(1),
 			},
@@ -44,16 +44,17 @@ func (c *CloudwatchReporter) Report(r *Report) error {
 				Dimensions: []*cloudwatch.Dimension{
 					{
 						Name:  aws.String("Status"),
-						Value: aws.String(string(r.status)),
+						Value: aws.String(string(r.Status)),
 					},
 				},
 				MetricName: aws.String("Duration"),
-				Timestamp:  &r.endTime,
+				Timestamp:  &r.EndTime,
 				Unit:       aws.String("Milliseconds"),
-				Value:      aws.Float64(float64(r.endTime.Sub(r.startTime).Milliseconds())),
+				Value:      aws.Float64(float64(r.EndTime.Sub(r.StartTime).Milliseconds())),
 			},
 		},
 	}
+	c.logger.Debug("Sending Report to Cloudwatch")
 	_, err := c.client.PutMetricData(input)
 	if err != nil {
 		c.logger.
