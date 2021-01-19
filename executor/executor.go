@@ -3,18 +3,18 @@ package executor
 import (
 	"time"
 
-	"github.com/arekmano/deckard/collector"
 	"github.com/arekmano/deckard/reporter"
+	"github.com/arekmano/deckard/transaction"
 	"github.com/sirupsen/logrus"
 )
 
 type ExecutorService struct {
 	reporter        reporter.Reporter
 	logger          *logrus.Entry
-	transactionFunc collector.Transaction
+	transactionFunc transaction.Transaction
 }
 
-func New(report reporter.Reporter, logger *logrus.Entry, transactionFunc collector.Transaction) *ExecutorService {
+func New(report reporter.Reporter, logger *logrus.Entry, transactionFunc transaction.Transaction) *ExecutorService {
 	return &ExecutorService{
 		reporter:        report,
 		logger:          logger,
@@ -24,18 +24,18 @@ func New(report reporter.Reporter, logger *logrus.Entry, transactionFunc collect
 
 func (e *ExecutorService) Execute(input interface{}) {
 	e.logger.
-		WithField("Status", collector.Initializing).
+		WithField("Status", transaction.Initializing).
 		Debug("Starting transaction")
 	startTime := time.Now()
 	err := e.transactionFunc(input)
 	endTime := time.Now()
-	var status collector.TransactionStatus
+	var status transaction.TransactionStatus
 	var message string
 	if err != nil {
-		status = collector.Fail
+		status = transaction.Fail
 		message = err.Error()
 	} else {
-		status = collector.Success
+		status = transaction.Success
 		message = "Completed Successfully"
 	}
 	report := &reporter.Report{

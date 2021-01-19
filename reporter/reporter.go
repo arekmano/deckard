@@ -3,7 +3,7 @@ package reporter
 import (
 	"time"
 
-	"github.com/arekmano/deckard/collector"
+	"github.com/arekmano/deckard/transaction"
 )
 
 type Reporter interface {
@@ -11,7 +11,7 @@ type Reporter interface {
 }
 
 type Report struct {
-	Status    collector.TransactionStatus
+	Status    transaction.TransactionStatus
 	StartTime time.Time
 	EndTime   time.Time
 	Message   string

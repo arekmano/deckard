@@ -9,6 +9,6 @@ func GetCommand() *cobra.Command {
 		Long:  `m`,
 	}
 
-	root.AddCommand(echoCommand(), executeCommand())
+	root.AddCommand(echoCommand(), stressCommand())
 	return root
 }

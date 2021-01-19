@@ -1,4 +1,4 @@
-package collector
+package transaction
 
 const (
 	Fail         TransactionStatus = "Fail"
