@@ -1,6 +1,7 @@
 package reporter
 
 import (
+	"github.com/arekmano/deckard/executor"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/cloudwatch"
 	"github.com/aws/aws-sdk-go/service/cloudwatch/cloudwatchiface"
@@ -12,7 +13,7 @@ type CloudwatchReporter struct {
 	logger *logrus.Entry
 }
 
-func (c *CloudwatchReporter) Report(r *Report) error {
+func (c *CloudwatchReporter) ReportTransaction(r *executor.Report) error {
 	// More than 150 TPS and we're borked. TODO: Refactor.
 	input := &cloudwatch.PutMetricDataInput{
 		MetricData: []*cloudwatch.MetricDatum{

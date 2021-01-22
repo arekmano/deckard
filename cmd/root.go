@@ -1,6 +1,9 @@
 package cmd
 
-import "github.com/spf13/cobra"
+import (
+	"github.com/arekmano/deckard/cmd/stress"
+	"github.com/spf13/cobra"
+)
 
 func GetCommand() *cobra.Command {
 	root := &cobra.Command{
@@ -9,6 +12,6 @@ func GetCommand() *cobra.Command {
 		Long:  `m`,
 	}
 
-	root.AddCommand(echoCommand(), stressCommand())
+	root.AddCommand(echoCommand(), stress.StressCommand(), singleCommand(), setupCommand())
 	return root
 }

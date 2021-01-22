@@ -10,8 +10,8 @@ func startCommand() *cobra.Command {
 	var token *string
 	command := &cobra.Command{
 		Use:   "start",
-		Short: "start",
-		Long:  `m`,
+		Short: "Starts the long-running periodic execution of some command",
+		Long:  `Starts the long-running periodic execution of some command. Will persist until "deckard stop" is called.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			fmt.Printf("token: %s\n", *token)
 			return nil

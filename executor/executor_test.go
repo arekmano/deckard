@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/arekmano/deckard/executor"
-	"github.com/arekmano/deckard/reporter"
 	"github.com/sirupsen/logrus"
 )
 
@@ -16,6 +15,6 @@ var testFunction = func(context interface{}) error {
 
 func TestExecute_WithSuccess(t *testing.T) {
 	logger := logrus.New()
-	e := executor.New(&reporter.PrintReporter{Logger: logger}, logrus.NewEntry(logger), testFunction)
+	e := executor.New(logrus.NewEntry(logger), testFunction)
 	e.Execute(nil)
 }

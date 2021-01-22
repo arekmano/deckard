@@ -1,28 +1,27 @@
-package cmd
+package stress
 
 import (
 	"math"
 
 	"github.com/arekmano/deckard/executor"
-	"github.com/arekmano/deckard/reporter"
 	"github.com/arekmano/deckard/transaction"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
-func stressCommand() *cobra.Command {
+func maxParallelCommand() *cobra.Command {
 	var binarypath *string
 	var binaryargs *[]string
 	var frequency *int
 	var maxParallel *int
 	command := &cobra.Command{
-		Use:   "stress",
-		Short: "stress",
+		Use:   "max-parallel",
+		Short: "max-parallel",
 		Long:  `m`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			logger := logrus.New()
 			logger.SetLevel(logrus.DebugLevel)
-			e := executor.New(&reporter.PrintReporter{Logger: logger}, logrus.NewEntry(logger), transaction.Binary(*binarypath, *binaryargs))
+			e := executor.New(logrus.NewEntry(logger), transaction.Binary(*binarypath, *binaryargs))
 			c := make(chan int, *maxParallel)
 			initialThreads := int(math.Min(float64(*frequency), float64(*maxParallel)))
 			invocationsComplete := 0
