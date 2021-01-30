@@ -5,10 +5,11 @@ import (
 	"testing"
 
 	"github.com/arekmano/deckard/executor"
+	"github.com/arekmano/deckard/transaction"
 	"github.com/sirupsen/logrus"
 )
 
-var testFunction = func(context interface{}) error {
+var testFunction = func(context *transaction.TransactionContext) error {
 	fmt.Println("FUNCTION EXECUTING")
 	return nil
 }

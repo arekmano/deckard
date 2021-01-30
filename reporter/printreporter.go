@@ -1,6 +1,8 @@
 package reporter
 
 import (
+	"io"
+
 	"github.com/arekmano/deckard/executor"
 	"github.com/arekmano/deckard/stats"
 	"github.com/sirupsen/logrus"
@@ -14,6 +16,7 @@ func (c *PrintReporter) ReportTransaction(r *executor.Report) error {
 	c.Logger.
 		WithField("StartTime", r.StartTime).
 		WithField("EndTime", r.EndTime).
+		WithField("Duration", r.EndTime.Sub(r.StartTime)).
 		WithField("Status", r.Status).
 		WithField("Message", r.Message).
 		Info("Transaction Report")
@@ -37,4 +40,8 @@ func (c *PrintReporter) ReportStatistics(stat *stats.Statistics) error {
 		WithField("End time", stat.EndTime).
 		Info("Statistic Report")
 	return nil
+}
+
+func (c *PrintReporter) Writer() io.Writer {
+	return c.Logger.Out
 }

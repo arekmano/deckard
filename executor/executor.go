@@ -26,12 +26,12 @@ func New(logger *logrus.Entry, transactionFunc transaction.Transaction) *Executo
 	}
 }
 
-func (e *Executor) Execute(input interface{}) (*Report, error) {
+func (e *Executor) Execute(context *transaction.TransactionContext) (*Report, error) {
 	e.logger.
 		WithField("Status", transaction.Initializing).
 		Debug("Starting transaction")
 	startTime := time.Now()
-	err := e.transactionFunc(input)
+	err := e.transactionFunc(context)
 	endTime := time.Now()
 	var status transaction.TransactionStatus
 	var message string

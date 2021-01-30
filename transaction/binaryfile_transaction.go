@@ -5,10 +5,10 @@ import (
 )
 
 func Binary(binaryPath string, binaryargs []string) Transaction {
-	return func(context interface{}) error {
+	return func(context *TransactionContext) error {
 		command := exec.Command(binaryPath, binaryargs...)
-		// command.Stdout = os.Stdout
-		// command.Stderr = os.Stderr
+		command.Stdout = context.TransactionWriter
+		command.Stderr = context.TransactionWriter
 		return command.Run()
 	}
 }

@@ -1,5 +1,7 @@
 package transaction
 
+import "io"
+
 const (
 	Fail         TransactionStatus = "Fail"
 	Success      TransactionStatus = "Success"
@@ -8,7 +10,8 @@ const (
 )
 
 type TransactionStatus string
-type Transaction = func(context interface{}) error
+type Transaction = func(context *TransactionContext) error
 
-type TransactionConfig struct {
+type TransactionContext struct {
+	TransactionWriter io.Writer
 }
