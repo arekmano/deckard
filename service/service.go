@@ -22,24 +22,44 @@ type Deckard struct {
 	reportChan    chan executor.Report
 }
 
-func New(r reporter.Reporter, e *executor.Executor, l *logrus.Entry, stopTime time.Time, interval time.Duration) *Deckard {
+func New(r reporter.Reporter, e *executor.Executor, l *logrus.Entry, stopTime time.Time) *Deckard {
 	return &Deckard{
-		reporter:      r,
-		executor:      e,
-		logger:        l,
-		reports:       []executor.Report{},
-		startTime:     time.Now(),
-		startInterval: interval,
-		stopTime:      stopTime,
-		startTimes:    []time.Time{},
-		reportChan:    make(chan executor.Report),
+		reporter:   r,
+		executor:   e,
+		logger:     l,
+		reports:    []executor.Report{},
+		startTime:  time.Now(),
+		stopTime:   stopTime,
+		startTimes: []time.Time{},
+		reportChan: make(chan executor.Report),
 	}
 }
 
-func (d *Deckard) FixedTps(reportIntervalArg float64) error {
+func (d *Deckard) FixedTps(interval time.Duration, reportIntervalArg float64) error {
 	go d.reporterRoutine(reportIntervalArg)
 	go d.metricCollectorRoutine()
-	d.executionStarter()
+	d.executionMaxTPS(interval)
+	for {
+		if len(d.startTimes) == len(d.reports) {
+			s, err := stats.Stats(d.reports, d.startTimes)
+			if err != nil {
+				return err
+			}
+			d.reporter.ReportStatistics(s)
+			return nil
+		}
+		d.logger.
+			WithField("Running", len(d.startTimes)-len(d.reports)).
+			Info("Waiting on executing transactions to complete")
+		time.Sleep(time.Second)
+	}
+}
+
+func (d *Deckard) MaxParallel(maxThreads int, reportIntervalArg float64) error {
+	go d.reporterRoutine(reportIntervalArg)
+	go d.metricCollectorRoutine()
+	d.executeParallel(maxThreads)
+
 	for {
 		if len(d.startTimes) == len(d.reports) {
 			s, err := stats.Stats(d.reports, d.startTimes)
@@ -70,7 +90,27 @@ func (d *Deckard) reporterRoutine(reportIntervalArg float64) {
 	}
 }
 
-func (d *Deckard) executionStarter() {
+func (d *Deckard) executeParallel(maxParallel int) {
+	c := make(chan int, maxParallel)
+	for i := 0; i < maxParallel; i++ {
+		c <- i
+	}
+	for time.Now().Before(d.stopTime) {
+		select {
+		case i := <-c:
+			d.startTimes = append(d.startTimes, time.Now())
+			go func(threadNumber int) {
+				report, _ := d.executor.Execute(&transaction.TransactionContext{
+					TransactionWriter: d.reporter.Writer(),
+				})
+				d.reportChan <- *report
+				c <- threadNumber
+			}(i)
+		}
+	}
+}
+
+func (d *Deckard) executionMaxTPS(interval time.Duration) {
 	for time.Now().Before(d.stopTime) {
 		d.startTimes = append(d.startTimes, time.Now())
 		go func() {
@@ -79,7 +119,7 @@ func (d *Deckard) executionStarter() {
 			})
 			d.reportChan <- *report
 		}()
-		time.Sleep(d.startInterval)
+		time.Sleep(interval)
 	}
 }
 

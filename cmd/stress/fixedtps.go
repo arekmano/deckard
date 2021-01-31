@@ -7,7 +7,6 @@ import (
 	"github.com/arekmano/deckard/reporter"
 	"github.com/arekmano/deckard/service"
 	"github.com/arekmano/deckard/transaction"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -30,8 +29,8 @@ func fixedTpsCommand() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			d := service.New(&reporter.PrintReporter{Logger: logger}, e, logrus.NewEntry(logger).WithField("mode", "fixed-tps"), *stopTime, interval)
-			return d.FixedTps(*reportIntervalArg)
+			d := service.New(&reporter.PrintReporter{Logger: logger}, e, logrus.NewEntry(logger).WithField("mode", "fixed-tps"), *stopTime)
+			return d.FixedTps(interval, *reportIntervalArg)
 		},
 	}
 	binarypath = command.Flags().StringP("binarypath", "b", "", "the path to the binary to execute")
@@ -42,18 +41,4 @@ func fixedTpsCommand() *cobra.Command {
 	command.MarkFlagRequired("binarypath")
 	command.MarkFlagRequired("tps")
 	return command
-}
-
-func ParseStopTime(durationArg string) (stopTime *time.Time, err error) {
-	var t time.Time
-	if durationArg == "" {
-		t = time.Now().Add(time.Hour * 999999)
-	} else {
-		duration, err := time.ParseDuration(durationArg)
-		if err != nil {
-			return nil, errors.Wrap(err, "duration argument invalid")
-		}
-		t = time.Now().Add(duration)
-	}
-	return &t, nil
 }
